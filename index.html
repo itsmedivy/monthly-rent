@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monthly Rent Calculator</title>
+    <title>Home Rent Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -19,113 +19,123 @@
             100% { transform: scale(1); }
         }
         
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-            40% {transform: translateY(-15px);}
-            60% {transform: translateY(-7px);}
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         
         .fade-in {
             animation: fadeIn 0.6s ease-out forwards;
         }
         
-        .pulse {
-            animation: pulse 1.5s infinite;
-        }
-        
-        .bounce {
-            animation: bounce 1s;
+        .pulse-hover:hover {
+            animation: pulse 1s infinite;
         }
         
         .gradient-bg {
-            background: linear-gradient(135deg, #f0fff4 0%, #ffebee 100%);
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
         }
         
-        .form-container {
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        .rounded-xl {
+            border-radius: 1rem;
         }
         
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
+        .rounded-2xl {
+            border-radius: 1.5rem;
+        }
+        
+        .rounded-3xl {
+            border-radius: 2rem;
+        }
+        
+        .input-field {
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
         }
         
         .copy-success {
-            animation: bounce 0.5s;
+            color: #10B981;
+            transform: scale(1.2);
+        }
+        
+        .disabled-month {
+            opacity: 0.5;
+            pointer-events: none;
         }
     </style>
 </head>
-<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
-    <div class="form-container bg-white rounded-3xl p-8 w-full max-w-md fade-in">
-        <!-- Header with month navigation -->
-        <div class="flex justify-between items-center mb-6">
-            <button id="prev-month" class="rounded-full w-10 h-10 flex items-center justify-center bg-red-100 text-red-600 hover:bg-red-200 transition-all duration-300">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <h2 id="current-month" class="text-xl font-bold text-gray-800"></h2>
-            <button id="next-month" class="rounded-full w-10 h-10 flex items-center justify-center bg-green-100 text-green-600 hover:bg-green-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
-        
-        <!-- Form inputs -->
-        <div class="space-y-4">
-            <div>
-                <label for="monthly-rent" class="block text-sm font-medium text-gray-700 mb-1">Monthly Home Rent (₹)</label>
-                <input type="number" id="monthly-rent" class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300">
-            </div>
-            
-            <div>
-                <label for="electricity-rate" class="block text-sm font-medium text-gray-700 mb-1">Electricity Unit Rate (₹/unit)</label>
-                <input type="number" step="0.01" id="electricity-rate" class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300">
-            </div>
-            
-            <div>
-                <label for="last-month-units" class="block text-sm font-medium text-gray-700 mb-1">Last Month Electricity Units</label>
-                <input type="number" step="0.01" id="last-month-units" class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300" readonly>
-            </div>
-            
-            <div>
-                <label for="current-month-units" class="block text-sm font-medium text-gray-700 mb-1">Current Month Electricity Units</label>
-                <input type="number" step="0.01" id="current-month-units" class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300">
-            </div>
-            
-            <div class="flex space-x-4 pt-2">
-                <button id="calculate-btn" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-xl transition-all duration-300 transform hover:scale-105">
-                    Calculate
-                </button>
-                <button id="process-btn" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-xl transition-all duration-300 transform hover:scale-105">
-                    Process
-                </button>
-            </div>
-        </div>
-        
-        <!-- Results section -->
-        <div id="results" class="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200 hidden relative">
-            <button id="copy-btn" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white flex items-center justify-center text-gray-500 hover:text-green-600 transition-all duration-300">
-                <i class="fas fa-copy" id="copy-icon"></i>
-            </button>
-            
-            <h3 class="text-lg font-semibold text-gray-800 mb-2" id="result-month"></h3>
-            <p class="text-sm text-gray-600 mb-4" id="result-date"></p>
-            
-            <div class="space-y-2 text-sm">
-                <div class="flex justify-between">
-                    <span>Current Month Units:</span>
-                    <span id="current-units-display"></span>
+<body class="min-h-screen gradient-bg flex items-center justify-center p-4 font-sans">
+    <div class="w-full max-w-md mx-auto">
+        <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden fade-in">
+            <!-- Header with month navigation -->
+            <div class="bg-indigo-600 text-white p-6 relative">
+                <div class="flex justify-between items-center mb-4">
+                    <button id="prev-month" class="p-2 rounded-full bg-indigo-700 hover:bg-indigo-800 transition-colors duration-300">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h2 id="current-month" class="text-xl font-bold">Month Year</h2>
+                    <button id="next-month" class="p-2 rounded-full bg-indigo-700 hover:bg-indigo-800 transition-colors duration-300 disabled:opacity-50" disabled>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
                 </div>
-                <div class="flex justify-between">
-                    <span>Total Units:</span>
-                    <span id="total-units"></span>
-                </div>
-                <div class="flex justify-between">
-                    <span>Electricity:</span>
-                    <span id="electricity-cost"></span>
-                </div>
-                <div class="border-t border-gray-200 pt-2 mt-2 flex justify-between font-bold">
-                    <span>Total Amount:</span>
-                    <span id="total-amount"></span>
+                <div class="text-center text-indigo-100 text-sm" id="current-date"></div>
+            </div>
+            
+            <!-- Form container -->
+            <div class="p-6">
+                <form id="rent-form">
+                    <div class="space-y-4">
+                        <!-- Monthly Home Rent -->
+                        <div>
+                            <label for="monthly-rent" class="block text-sm font-medium text-gray-700 mb-1">Monthly Home Rent (₹)</label>
+                            <input type="number" id="monthly-rent" class="w-full px-4 py-3 input-field rounded-xl border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" min="0" step="0.01">
+                        </div>
+                        
+                        <!-- Electricity Unit Rate -->
+                        <div>
+                            <label for="electricity-rate" class="block text-sm font-medium text-gray-700 mb-1">Electricity Unit Rate (₹/unit)</label>
+                            <input type="number" id="electricity-rate" class="w-full px-4 py-3 input-field rounded-xl border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" min="0" step="0.01">
+                        </div>
+                        
+                        <!-- Last Month Electricity Units -->
+                        <div>
+                            <label for="last-month-units" class="block text-sm font-medium text-gray-700 mb-1">Last Month Electricity Units</label>
+                            <input type="number" id="last-month-units" class="w-full px-4 py-3 input-field rounded-xl border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" min="0" step="0.01" readonly>
+                        </div>
+                        
+                        <!-- Current Month Electricity Units -->
+                        <div>
+                            <label for="current-month-units" class="block text-sm font-medium text-gray-700 mb-1">Current Month Electricity Units</label>
+                            <input type="number" id="current-month-units" class="w-full px-4 py-3 input-field rounded-xl border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" min="0" step="0.01">
+                        </div>
+                    </div>
+                    
+                    <!-- Buttons -->
+                    <div class="mt-6 flex space-x-3">
+                        <button type="button" id="calculate-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-xl font-medium transition-colors duration-300 pulse-hover">
+                            Calculate
+                        </button>
+                        <button type="button" id="process-btn" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-xl font-medium transition-colors duration-300 pulse-hover">
+                            Process
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Rent Details -->
+                <div id="rent-details" class="mt-6 bg-gray-50 p-4 rounded-xl border border-gray-200 relative hidden">
+                    <button id="copy-btn" class="absolute top-3 right-3 text-gray-500 hover:text-indigo-600 transition-colors duration-300">
+                        <i class="far fa-copy"></i>
+                    </button>
+                    <h3 class="font-bold text-lg mb-2 text-gray-800">Rent Details</h3>
+                    <div id="details-content" class="space-y-2 text-sm text-gray-700">
+                        <!-- Details will be populated here -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -133,47 +143,39 @@
 
     <script>
         $(document).ready(function() {
-            // Initialize data storage
+            // Initialize data if not exists
             if (!localStorage.getItem('rentData')) {
-                const initialData = {
+                const defaultData = {
                     config: {
                         monthlyRent: 10000,
                         electricityRate: 8.5
                     },
                     records: {}
                 };
-                localStorage.setItem('rentData', JSON.stringify(initialData));
+                localStorage.setItem('rentData', JSON.stringify(defaultData));
             }
             
             // Get current date
             const today = new Date();
-            let currentMonth = today.getMonth();
-            let currentYear = today.getFullYear();
-            let currentDay = today.getDate();
+            let currentDisplayDate = new Date(today.getFullYear(), today.getMonth(), 1);
             
-            // Load data for the current month
-            loadMonthData(currentYear, currentMonth);
-            updateMonthDisplay(currentYear, currentMonth);
+            // Load data for current month
+            loadMonthData(currentDisplayDate);
+            
+            // Update current date display
+            updateCurrentDateDisplay();
             
             // Month navigation
             $('#prev-month').click(function() {
-                currentMonth--;
-                if (currentMonth < 0) {
-                    currentMonth = 11;
-                    currentYear--;
-                }
-                loadMonthData(currentYear, currentMonth);
-                updateMonthDisplay(currentYear, currentMonth);
+                currentDisplayDate.setMonth(currentDisplayDate.getMonth() - 1);
+                loadMonthData(currentDisplayDate);
+                updateNavButtons();
             });
             
             $('#next-month').click(function() {
-                currentMonth++;
-                if (currentMonth > 11) {
-                    currentMonth = 0;
-                    currentYear++;
-                }
-                loadMonthData(currentYear, currentMonth);
-                updateMonthDisplay(currentYear, currentMonth);
+                currentDisplayDate.setMonth(currentDisplayDate.getMonth() + 1);
+                loadMonthData(currentDisplayDate);
+                updateNavButtons();
             });
             
             // Calculate button
@@ -183,45 +185,33 @@
             
             // Process button
             $('#process-btn').click(function() {
-                if (confirm("Are you sure you want to process and save this month's rent?")) {
-                    saveRent();
+                if (confirm('Are you sure you want to process and save this month\'s rent? This action cannot be undone.')) {
+                    processRent();
                 }
             });
             
             // Copy to clipboard
             $('#copy-btn').click(function() {
-                const resultText = generateResultText();
-                navigator.clipboard.writeText(resultText).then(function() {
-                    $('#copy-icon').removeClass('fa-copy').addClass('fa-check text-green-600 copy-success');
-                    setTimeout(function() {
-                        $('#copy-icon').removeClass('fa-check text-green-600 copy-success').addClass('fa-copy');
+                const detailsText = $('#details-content').text();
+                navigator.clipboard.writeText(detailsText).then(() => {
+                    const $icon = $(this).find('i');
+                    $icon.removeClass('fa-copy').addClass('fa-check copy-success');
+                    setTimeout(() => {
+                        $icon.removeClass('fa-check copy-success').addClass('fa-copy');
                     }, 2000);
                 });
             });
             
-            // Helper functions
-            function updateMonthDisplay(year, month) {
-                const monthNames = ["January", "February", "March", "April", "May", "June", 
-                                   "July", "August", "September", "October", "November", "December"];
-                $('#current-month').text(`${monthNames[month]} ${year}`);
-                
-                // Disable next month button if trying to go to future months
-                const currentDate = new Date();
-                const currentMonth = currentDate.getMonth();
-                const currentYear = currentDate.getFullYear();
-                
-                if (year > currentYear || (year === currentYear && month > currentMonth)) {
-                    $('#next-month').prop('disabled', true);
-                } else {
-                    $('#next-month').prop('disabled', false);
-                }
-            }
-            
-            function loadMonthData(year, month) {
+            // Function to load month data
+            function loadMonthData(date) {
                 const rentData = JSON.parse(localStorage.getItem('rentData'));
-                const monthKey = `${year}-${month}`;
-                const currentDate = new Date();
-                const isCurrentMonth = (year === currentDate.getFullYear() && month === currentDate.getMonth());
+                const monthKey = getMonthKey(date);
+                const today = new Date();
+                const isCurrentMonth = date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+                const isBefore10th = today.getDate() < 10;
+                
+                // Update month display
+                $('#current-month').text(formatMonthYear(date));
                 
                 // Load config values
                 $('#monthly-rent').val(rentData.config.monthlyRent);
@@ -229,64 +219,56 @@
                 
                 // Check if we have data for this month
                 if (rentData.records[monthKey]) {
+                    // This month's data exists (viewing past month)
                     const record = rentData.records[monthKey];
                     $('#last-month-units').val(record.lastMonthUnits);
                     $('#current-month-units').val(record.currentMonthUnits);
                     
-                    // Show results if available
-                    if (record.processed) {
-                        showResults(record, year, month);
-                    } else {
-                        $('#results').addClass('hidden');
-                    }
-                } else {
-                    // For new months, try to get last month's current units as this month's last units
-                    let lastMonth = month - 1;
-                    let lastYear = year;
-                    if (lastMonth < 0) {
-                        lastMonth = 11;
-                        lastYear--;
-                    }
-                    const lastMonthKey = `${lastYear}-${lastMonth}`;
+                    // Disable all fields and buttons (Scenario 1 or 4)
+                    setFormDisabled(true);
                     
-                    if (rentData.records[lastMonthKey]) {
-                        $('#last-month-units').val(rentData.records[lastMonthKey].currentMonthUnits);
+                    // Show calculated details
+                    showRentDetails(record);
+                } else if (isCurrentMonth) {
+                    // Current month, no data yet
+                    // Find previous month's current units to use as last month units
+                    const prevMonth = new Date(date);
+                    prevMonth.setMonth(prevMonth.getMonth() - 1);
+                    const prevMonthKey = getMonthKey(prevMonth);
+                    
+                    if (rentData.records[prevMonthKey]) {
+                        $('#last-month-units').val(rentData.records[prevMonthKey].currentMonthUnits);
                     } else {
-                        $('#last-month-units').val('0');
+                        $('#last-month-units').val(0);
                     }
                     
                     $('#current-month-units').val('');
-                    $('#results').addClass('hidden');
-                }
-                
-                // Enable/disable inputs based on date and whether it's processed
-                const isProcessed = rentData.records[monthKey] && rentData.records[monthKey].processed;
-                const isEditable = isCurrentMonth && currentDay >= 10 && !isProcessed;
-                
-                $('#monthly-rent').prop('readonly', true);
-                $('#electricity-rate').prop('readonly', true);
-                $('#current-month-units').prop('readonly', !isEditable);
-                
-                // Show/hide buttons
-                if (isCurrentMonth && currentDay >= 10 && !isProcessed) {
-                    $('#calculate-btn, #process-btn').prop('disabled', false).removeClass('opacity-50');
+                    
+                    // Check if we're before the 10th (Scenario 1)
+                    if (isBefore10th) {
+                        setFormDisabled(true);
+                        $('#rent-details').addClass('hidden');
+                    } else {
+                        // After 10th, allow editing (Scenario 2)
+                        setFormDisabled(false);
+                    }
                 } else {
-                    $('#calculate-btn, #process-btn').prop('disabled', true).addClass('opacity-50');
-                }
-                
-                // Special case: before 10th of current month
-                if (isCurrentMonth && currentDay < 10 && !isProcessed) {
-                    $('#current-month-units').prop('readonly', true);
+                    // Future month or month with no data
+                    $('#last-month-units').val(0);
+                    $('#current-month-units').val(0);
+                    setFormDisabled(true);
+                    $('#rent-details').addClass('hidden');
                 }
             }
             
+            // Function to calculate rent
             function calculateRent() {
                 const monthlyRent = parseFloat($('#monthly-rent').val());
                 const electricityRate = parseFloat($('#electricity-rate').val());
                 const lastMonthUnits = parseFloat($('#last-month-units').val());
                 const currentMonthUnits = parseFloat($('#current-month-units').val());
                 
-                // Validation
+                // Validate inputs
                 if (isNaN(monthlyRent) || isNaN(electricityRate) || isNaN(lastMonthUnits) || isNaN(currentMonthUnits)) {
                     alert('Please fill in all fields with valid numbers');
                     return;
@@ -297,55 +279,35 @@
                     return;
                 }
                 
+                // Calculate
                 const totalUnits = currentMonthUnits - lastMonthUnits;
                 const electricityCost = totalUnits * electricityRate;
-                const totalAmount = monthlyRent + electricityCost;
+                const totalRent = monthlyRent + electricityCost;
                 
-                // Show results
-                const currentDate = new Date();
-                const month = currentDate.getMonth();
-                const year = currentDate.getFullYear();
-                
-                const resultData = {
+                // Create record object
+                const record = {
+                    date: new Date().toISOString(),
                     monthlyRent: monthlyRent,
                     electricityRate: electricityRate,
                     lastMonthUnits: lastMonthUnits,
                     currentMonthUnits: currentMonthUnits,
                     totalUnits: totalUnits,
                     electricityCost: electricityCost,
-                    totalAmount: totalAmount,
-                    processed: false
+                    totalRent: totalRent
                 };
                 
-                showResults(resultData, year, month);
+                // Show details
+                showRentDetails(record);
             }
             
-            function showResults(data, year, month) {
-                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-                                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                const date = new Date();
-                const day = date.getDate();
-                
-                $('#result-month').text(`${monthNames[month]}-${year}`);
-                $('#result-date').text(`${day}-${monthNames[month]}`);
-                $('#current-units-display').text(data.currentMonthUnits);
-                $('#total-units').text(`${data.currentMonthUnits} - ${data.lastMonthUnits} = ${data.totalUnits.toFixed(2)}`);
-                $('#electricity-cost').text(`${data.totalUnits.toFixed(2)} × ₹${data.electricityRate} = ₹${data.electricityCost.toFixed(2)}`);
-                $('#total-amount').text(`₹${data.monthlyRent} + ₹${data.electricityCost.toFixed(2)} = ₹${data.totalAmount.toFixed(2)}`);
-                
-                $('#results').removeClass('hidden').addClass('pulse');
-                setTimeout(() => {
-                    $('#results').removeClass('pulse');
-                }, 1500);
-            }
-            
-            function saveRent() {
+            // Function to process and save rent
+            function processRent() {
                 const monthlyRent = parseFloat($('#monthly-rent').val());
                 const electricityRate = parseFloat($('#electricity-rate').val());
                 const lastMonthUnits = parseFloat($('#last-month-units').val());
                 const currentMonthUnits = parseFloat($('#current-month-units').val());
                 
-                // Validation
+                // Validate inputs
                 if (isNaN(monthlyRent) || isNaN(electricityRate) || isNaN(lastMonthUnits) || isNaN(currentMonthUnits)) {
                     alert('Please fill in all fields with valid numbers');
                     return;
@@ -356,38 +318,119 @@
                     return;
                 }
                 
+                // Calculate
                 const totalUnits = currentMonthUnits - lastMonthUnits;
                 const electricityCost = totalUnits * electricityRate;
-                const totalAmount = monthlyRent + electricityCost;
+                const totalRent = monthlyRent + electricityCost;
                 
-                const currentDate = new Date();
-                const month = currentDate.getMonth();
-                const year = currentDate.getFullYear();
-                const monthKey = `${year}-${month}`;
-                
-                const rentData = JSON.parse(localStorage.getItem('rentData'));
-                
-                // Check if already processed
-                if (rentData.records[monthKey] && rentData.records[monthKey].processed) {
-                    alert('This month has already been processed');
-                    return;
-                }
-                
-                // Save the record
-                rentData.records[monthKey] = {
+                // Create record object
+                const record = {
+                    date: new Date().toISOString(),
                     monthlyRent: monthlyRent,
                     electricityRate: electricityRate,
                     lastMonthUnits: lastMonthUnits,
                     currentMonthUnits: currentMonthUnits,
                     totalUnits: totalUnits,
                     electricityCost: electricityCost,
-                    totalAmount: totalAmount,
-                    processed: true,
-                    processedDate: new Date().toISOString()
+                    totalRent: totalRent
                 };
                 
+                // Save to localStorage
+                const rentData = JSON.parse(localStorage.getItem('rentData'));
+                const monthKey = getMonthKey(currentDisplayDate);
+                
+                // Check if already processed
+                if (rentData.records[monthKey]) {
+                    alert('This month\'s rent has already been processed.');
+                    return;
+                }
+                
+                rentData.records[monthKey] = record;
                 localStorage.setItem('rentData', JSON.stringify(rentData));
                 
-               
+                // Show details
+                showRentDetails(record);
+                
+                // Disable form (Scenario 3)
+                setFormDisabled(true);
+                
+                // Show success message
+                alert('Rent processed and saved successfully!');
+            }
+            
+            // Function to show rent details
+            function showRentDetails(record) {
+                const date = new Date(record.date);
+                const monthYear = formatMonthYear(date);
+                const dayMonth = formatDayMonth(date);
+                
+                let detailsHTML = `
+                    <div><span class="font-semibold">${monthYear}</span></div>
+                    <div>${dayMonth} - <span class="font-medium">${record.currentMonthUnits.toFixed(2)}</span> units</div>
+                    <div class="pt-2">Total Units: <span class="font-medium">${record.currentMonthUnits.toFixed(2)} - ${record.lastMonthUnits.toFixed(2)} = ${record.totalUnits.toFixed(2)}</span></div>
+                    <div>Electricity: <span class="font-medium">${record.totalUnits.toFixed(2)} × ₹${record.electricityRate.toFixed(2)} = ₹${record.electricityCost.toFixed(2)}</span></div>
+                    <div class="pt-2"><span class="font-bold">Total Amount:</span></div>
+                    <div><span class="font-bold">₹${record.monthlyRent.toFixed(2)} + ₹${record.electricityCost.toFixed(2)} = ₹${record.totalRent.toFixed(2)}</span></div>
+                `;
+                
+                $('#details-content').html(detailsHTML);
+                $('#rent-details').removeClass('hidden');
+            }
+            
+            // Helper function to format month/year
+            function formatMonthYear(date) {
+                return date.toLocaleString('default', { month: 'short', year: 'numeric' });
+            }
+            
+            // Helper function to format day/month
+            function formatDayMonth(date) {
+                return date.toLocaleString('default', { day: '2-digit', month: 'short' });
+            }
+            
+            // Helper function to get month key (YYYY-MM)
+            function getMonthKey(date) {
+                return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            }
+            
+            // Helper function to set form disabled state
+            function setFormDisabled(disabled) {
+                $('#monthly-rent').prop('readonly', disabled);
+                $('#electricity-rate').prop('readonly', disabled);
+                $('#current-month-units').prop('readonly', disabled);
+                
+                if (disabled) {
+                    $('#calculate-btn').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+                    $('#process-btn').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+                } else {
+                    $('#calculate-btn').prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
+                    $('#process-btn').prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
+                }
+            }
+            
+            // Helper function to update navigation buttons
+            function updateNavButtons() {
+                const today = new Date();
+                const nextMonth = new Date(currentDisplayDate);
+                nextMonth.setMonth(nextMonth.getMonth() + 1);
+                
+                // Disable next month button if it's the current month or future
+                $('#next-month').prop('disabled', 
+                    nextMonth.getMonth() > today.getMonth() || 
+                    nextMonth.getFullYear() > today.getFullYear()
+                );
+            }
+            
+            // Helper function to update current date display
+            function updateCurrentDateDisplay() {
+                const today = new Date();
+                $('#current-date').text(today.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                }));
+            }
+        });
+    </script>
 </body>
 </html>
